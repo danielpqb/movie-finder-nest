@@ -1,0 +1,51 @@
+version: "3"
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - 2346:5432
+    env_file:
+      - ./mathify-back/.env
+    restart: always
+    volumes:
+      - volume_postgres:/var/lib/postgres/data
+
+  app_node:
+    build: ./mathify-back
+    container_name: app_node
+    ports:
+      - 4000:4000
+    env_file:
+      - ./mathify-back/.env
+    volumes:
+      - .:/usr/src
+      - /usr/src/node_modules
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s docker-entrypoint.sh
+    command: "npm run migrate:start"
+    depends_on:
+      - postgres
+
+  app_react:
+    build: ./mathify-front
+    container_name: app_react
+    volumes:
+      - build_react:/var/www/html
+    env_file:
+      - ./mathify-front/.env
+    depends_on:
+      - app_node
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - 443:443
+    volumes:
+      - build_react:/var/www/html
+    depends_on:
+      - app_react
+
+volumes:
+  build_react:
+  volume_postgres:
