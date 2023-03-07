@@ -1,0 +1,6 @@
+[submodule "ntt-front"]
+	path = ntt-front
+	url = https://github.com/danielpqb/ntt-front
+[submodule "ntt-back"]
+	path = ntt-back
+	url = https://github.com/danielpqb/ntt-back
